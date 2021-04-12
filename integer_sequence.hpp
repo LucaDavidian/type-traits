@@ -1,6 +1,10 @@
 #ifndef INTEGER_SEQUENCE_H
 #define INTEGER_SEQUENCE_H
 
+#include <cstddef>
+
+using std::size_t;
+
 // sequence of integer values
 template <typename T, T... Values>
 struct IntegerSequence
@@ -8,45 +12,47 @@ struct IntegerSequence
 };
 
 // sequence of std::size_t values (indices)
-template <std::size_t... indices>
+template <size_t... indices>
 using IndexSequence = IntegerSequence<std::size_t, indices...>;
 
-template <std::size_t Index, std::size_t... Sequence>
-struct MakeIndexSequence_
+// index sequence - make a sequence of std::size_t values from 0 to N - 1
+template <size_t Index, size_t... Sequence>
+struct MakeIndexSequenceImpl
 {
-    using Type = typename MakeIndexSequence_<Index - 1, Index - 1, Sequence...>::Type;
+    using Type = typename MakeIndexSequenceImpl<Index - 1, Index - 1, Sequence...>::Type;
 };
 
-template <std::size_t... Sequence>
-struct MakeIndexSequence_<0U, Sequence...>
+template <size_t... Sequence>
+struct MakeIndexSequenceImpl<0U, Sequence...>
 {
-    using Type = IntegerSequence<std::size_t, Sequence...>;
+    using Type = IndexSequence<Sequence...>;
 };
 
-template <std::size_t N>
-using MakeIndexSequence = typename MakeIndexSequence_<N>::Type;
+template <size_t N>
+using MakeIndexSequence = typename MakeIndexSequenceImpl<N>::Type;
 
-template <std::size_t From, std::size_t Index, std::size_t... Sequence>
-struct MakeIndexSequenceFrom_
+// index sequence - make a sequence of std::size_t values from From to N - 1
+template <size_t From, size_t Index, size_t... Sequence>
+struct MakeIndexSequenceFromImpl
 {
-    using Type = typename MakeIndexSequenceFrom_<From, Index - 1, Index - 1, Sequence...>::Type;
+    using Type = typename MakeIndexSequenceFromImpl<From, Index - 1, Index - 1, Sequence...>::Type;
 };
 
-template <std::size_t From, std::size_t... Sequence>
-struct MakeIndexSequenceFrom_<From, From, Sequence...>
+template <size_t From, size_t... Sequence>
+struct MakeIndexSequenceFromImpl<From, From, Sequence...>
 {
-    using Type = IntegerSequence<std::size_t, Sequence...>;
+    using Type = IndexSequence<Sequence...>;
 };
 
-template <std::size_t From, std::size_t N>
-using MakeIndexSequenceFrom = typename MakeIndexSequenceFrom_<From, N>::Type;
+template <size_t From, std::size_t N>
+using MakeIndexSequenceFrom = typename MakeIndexSequenceFromImpl<From, N>::Type;
 
 #include "../typelist/typelist.hpp"
 
 template <unsigned int N>
 struct MakeIndexList
 {
-    using Type = typename PushBack<typename MakeIndexList<N - 1>::Type, IntegralConstant<unsigned int, N>>::Type;
+    using Type = typename PushBack<typename MakeIndexList<N - 1>::Type, Traits::IntegralConstant<unsigned int, N>>::Type;
 };
 
 template <>

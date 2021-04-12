@@ -200,13 +200,13 @@ namespace Traits
     };
 
     template <typename A, typename B>
-    struct Conditional<false,A,B>
+    struct Conditional<false, A, B>
     {
         using Type = B;
     };
 
     template <bool Condition, typename A, typename B>
-    using ConditionalT = typename Conditional<Condition,A,B>::Type;
+    using ConditionalT = typename Conditional<Condition, A, B>::Type;
 
     /**** decay (alternative implementation below) ****/
     // template <typename T>
